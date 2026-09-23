@@ -420,6 +420,31 @@ html:has(dialog.lightbox[open]){overflow:hidden}
 .lightbox img{max-width:min(96vw,900px);max-height:88vh;object-fit:contain;border-radius:4px;margin:auto}
 .lightbox .close{
   position:fixed;top:14px;right:14px;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:#fff;font-size:1.4rem;line-height:1;
+  z-index:2;
+}
+/* nút chuyển ảnh trước/sau: hai bên giữa màn hình; điện thoại thì hạ xuống thấp cho dễ với tay */
+.lightbox .nav{
+  position:fixed;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;
+  background:rgba(255,255,255,.14);color:#fff;display:grid;place-items:center;z-index:2;
+  transition:background .17s,transform .17s;
+}
+.lightbox .nav svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.lightbox .nav.prev{left:12px}
+.lightbox .nav.next{right:12px}
+.lightbox .nav:hover{background:rgba(255,255,255,.28)}
+.lightbox .nav:active{transform:translateY(-50%) scale(.94)}
+.lightbox .counter{
+  position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);margin:0;
+  color:rgba(255,255,255,.85);font-size:.85rem;letter-spacing:.06em;white-space:nowrap;
+  background:rgba(0,0,0,.25);padding:.35rem .8rem;border-radius:999px;pointer-events:none;
+}
+.lightbox .counter span{color:rgba(255,255,255,.6)}
+@media (max-width:1023px){
+  .lightbox .nav{top:auto;bottom:calc(52px + env(safe-area-inset-bottom,0px));transform:none;width:48px;height:48px}
+  .lightbox .nav:active{transform:scale(.94)}
+  .lightbox .nav.prev{left:18px}
+  .lightbox .nav.next{right:18px}
+  .lightbox img{max-height:78vh}
 }
 
 /* ── cổng mở thiệp: phong bì ──────────────────────────── */
