@@ -14,7 +14,7 @@ const BURST = Array.from({ length: 14 }, (_, i) => ({
 
 /* Cổng mở thiệp — phong bì.
    phase: "closed" → "opening" (nắp lật) → "hiding" (mờ dần) → onDone() */
-export function Gate({ guest, onOpen, onDone }) {
+export function Gate({ guest, onOpen, onHide, onDone }) {
   const { groom, bride, party } = CONFIG;
   const [phase, setPhase] = useState("closed");
   const envRef = useRef(null);
@@ -32,7 +32,11 @@ export function Gate({ guest, onOpen, onDone }) {
     const reduce = reducedMotion();
     /* dấu bung (0–.5s) → nắp lật (.3–1.2s) → thư bay lên (.8–2s) → phông zoom mờ (2.1–3s) */
     const t1 = reduce ? 50 : 2100, t2 = reduce ? 100 : 3050;
-    setTimeout(() => setPhase("hiding"), t1);
+    /* t1: phông bắt đầu mờ — báo App cho thiệp phía sau hiện dần ngay lúc này để chuyển cảnh liền mạch */
+    setTimeout(() => {
+      setPhase("hiding");
+      onHide?.();
+    }, t1);
     setTimeout(() => onDone?.(), t2);
   }
 

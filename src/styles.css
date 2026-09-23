@@ -30,6 +30,8 @@
 }
 *{box-sizing:border-box}
 html,body{margin:0}
+/* giữ chỗ cho thanh cuộn cả khi trang bị khoá (phong bì) để lúc mở không xô ngang nội dung */
+html{scrollbar-gutter:stable}
 body{
   font-family:var(--ff-body);
   color:var(--ink);
@@ -419,7 +421,7 @@ html:has(dialog.lightbox[open]){overflow:hidden}
 /* ── cổng mở thiệp: phong bì ──────────────────────────── */
 body.locked{overflow:hidden}
 .gate{
-  position:fixed;inset:0;z-index:50;display:grid;place-items:center;padding:1.5rem var(--gutter);
+  position:fixed;inset:0;right:auto;width:100vw;z-index:50;display:grid;place-items:center;padding:1.5rem var(--gutter);
   background:var(--ground);
   transition:opacity .9s var(--ease),visibility .9s;
 }
@@ -533,9 +535,8 @@ body.locked{overflow:hidden}
 .gate.hide .env{transform:translateY(90px) scale(.9);transition:transform .9s var(--ease)}
 .gate.hide .env-letter{transform:translateY(-130%) scale(1.5) rotate(0);opacity:0;transition:transform .9s var(--ease),opacity .7s .1s}
 .env-letter,.env-flap,.env-seal{will-change:transform}
-/* thiệp bên dưới hiện dần: chỉ opacity, không dịch chuyển cả tấm thiệp (nặng, gây giật) */
-.card.enter{animation:card-in .7s var(--ease) both}
-@keyframes card-in{from{opacity:0}to{opacity:1}}
+/* Tấm thiệp phía sau KHÔNG có animation riêng: nó đã lộ dần theo phông mờ, các mục .rv tự trượt lên.
+   Gán thêm animation lúc gỡ phong bì sẽ làm thiệp chớp một nhịp. */
 /* mưa tim chúc mừng — không dùng filter/bóng đổ để nhẹ máy */
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
 .confetti i{position:absolute;top:-6vh;color:var(--rose);animation:confetti-fall 3s cubic-bezier(.3,.2,.6,1) both;will-change:transform,opacity}

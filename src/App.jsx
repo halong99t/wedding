@@ -15,7 +15,10 @@ import { Hearts, Confetti, MusicControl } from "./components/Extras.jsx";
 const GUEST = "Quý khách";
 
 export default function App() {
-  /* Mỗi lần tải lại trang đều mở bằng phong bì */
+  /* Mỗi lần tải lại trang đều mở bằng phong bì.
+     revealed: phông bắt đầu mờ → các mục trong thiệp trượt lên ngay (song song với phông mờ)
+     opened:   phông đã tan hẳn → gỡ phong bì khỏi DOM */
+  const [revealed, setRevealed] = useState(false);
   const [opened, setOpened] = useState(false);
   const [celebrate, setCelebrate] = useState(false);
   const cardRef = useRef(null);
@@ -28,8 +31,8 @@ export default function App() {
     return () => clearTimeout(t);
   }, [celebrate]);
 
-  function onGateDone() {
-    setOpened(true);
+  function onGateHide() {
+    setRevealed(true);
     setCelebrate(true);
   }
 
@@ -43,12 +46,12 @@ export default function App() {
     return () => document.body.classList.remove("locked");
   }, [opened]);
 
-  /* hiện dần các mục sau khi thiệp mở */
-  useReveal(cardRef, opened);
+  /* hiện dần các mục ngay khi phông bắt đầu mờ */
+  useReveal(cardRef, revealed);
 
   return (
     <>
-      <div className={"card" + (opened ? " enter" : "")} ref={cardRef}>
+      <div className="card" ref={cardRef}>
         <Cover guest={GUEST} />
         <main className="content">
           <Hero />
@@ -66,7 +69,7 @@ export default function App() {
         </main>
       </div>
 
-      {!opened && <Gate guest={GUEST} onOpen={music.play} onDone={onGateDone} />}
+      {!opened && <Gate guest={GUEST} onOpen={music.play} onHide={onGateHide} onDone={() => setOpened(true)} />}
 
       <Hearts />
       {celebrate && <Confetti />}
