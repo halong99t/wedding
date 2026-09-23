@@ -37,7 +37,7 @@ export function Hearts({ count = 10 }) {
 }
 
 /* Mưa tim chúc mừng ngay sau khi mở thiệp — rơi nhanh, đậm hơn tim nền, tự gỡ sau vài giây */
-export function Confetti({ count = 26 }) {
+export function Confetti({ count = 18 }) {
   const items = useMemo(() => {
     if (reducedMotion()) return [];
     return Array.from({ length: count }, (_, i) => ({

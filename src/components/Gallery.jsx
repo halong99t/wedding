@@ -28,13 +28,16 @@ export function Gallery() {
     if (lb) {
       if (d.showModal) {
         if (!d.open) d.showModal();
+        document.body.classList.add("lb-open"); // khoá cuộn trang phía sau
       } else {
         window.open(lb.src, "_blank");
         setLb(null);
       }
-    } else if (d.open) {
-      d.close();
+    } else {
+      if (d.open) d.close();
+      document.body.classList.remove("lb-open");
     }
+    return () => document.body.classList.remove("lb-open");
   }, [lb]);
 
   return (

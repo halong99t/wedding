@@ -33,7 +33,8 @@ html,body{margin:0}
 body{
   font-family:var(--ff-body);
   color:var(--ink);
-  background:var(--ground);
+  /* điện thoại: nền cùng màu giấy để cuộn quá đà (bounce) không lộ nền tối; PC đặt lại nền riêng */
+  background:var(--paper);
   line-height:1.55;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
@@ -165,19 +166,21 @@ section + section,.pair > section:first-child,.pair + section{padding-top:0}
 
 /* ── album ────────────────────────────────────────────── */
 /* ảnh giấy viền trắng, đặt nghiêng nhẹ (--tilt), bay vào theo hướng riêng (--dx/--dy/--spin) khi cuộn tới */
-.album{--pad:7px;display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;padding:6px 4px}
+.album{--pad:7px;display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;padding:6px 4px;align-items:start}
 .album figure{
-  margin:0;position:relative;aspect-ratio:3/4;border-radius:4px;background:#fff;
+  margin:0;position:relative;padding:var(--pad) var(--pad) calc(var(--pad) + 3px);border-radius:4px;background:#fff;
   box-shadow:0 1px 0 rgba(255,255,255,.9) inset,0 16px 32px -20px rgba(60,20,20,.6),0 0 0 1px rgba(36,32,32,.06);
   transform:rotate(var(--tilt,0deg));
   transition:transform .6s var(--ease),box-shadow .6s var(--ease);
 }
-.album figure:nth-child(3n+1){aspect-ratio:4/5}
-.album figure.wide{grid-column:1/-1;aspect-ratio:16/10}
+.album figure.wide{grid-column:1/-1}
+/* tỉ lệ đặt trên khung ảnh trong luồng (không absolute) để lưới tính đúng chiều cao hàng */
 .album .pic{
-  position:absolute;inset:var(--pad) var(--pad) calc(var(--pad) + 3px);overflow:hidden;border-radius:2px;
+  position:relative;aspect-ratio:3/4;overflow:hidden;border-radius:2px;
   background:linear-gradient(160deg,#E9E1D6,#DED3C4);
 }
+.album figure:nth-child(3n+1) .pic{aspect-ratio:4/5}
+.album figure.wide .pic{aspect-ratio:16/10}
 .album .pic img{width:100%;height:100%;object-fit:cover;transition:transform .8s var(--ease)}
 .album figcaption{
   position:absolute;left:var(--pad);right:var(--pad);bottom:calc(var(--pad) + 3px);
@@ -399,8 +402,11 @@ section + section,.pair > section:first-child,.pair + section{padding-top:0}
 }
 
 /* ── lightbox ─────────────────────────────────────────── */
-.lightbox{border:0;padding:0;background:transparent;max-width:min(96vw,900px);max-height:96vh}
-.lightbox::backdrop{background:rgba(20,10,10,.86)}
+.lightbox{border:0;padding:0;background:transparent;max-width:min(96vw,900px);max-height:96vh;touch-action:none}
+.lightbox::backdrop{background:rgba(20,10,10,.86);touch-action:none}
+/* khoá cuộn trang phía sau khi ảnh đang phóng to */
+body.lb-open{overflow:hidden;touch-action:none}
+html:has(dialog.lightbox[open]){overflow:hidden}
 .lightbox[open]{animation:lb-in .45s var(--ease)}
 .lightbox[open]::backdrop{animation:lb-bg .45s var(--ease)}
 @keyframes lb-in{from{opacity:0;transform:scale(.88) translateY(14px)}}
@@ -519,20 +525,23 @@ body.locked{overflow:hidden}
   15%{opacity:1}
   100%{opacity:0;transform:rotate(var(--a)) translateY(calc(var(--d) * -1)) scale(1.1)}
 }
-/* giai đoạn phông mờ: zoom xuyên qua, phong bì tụt xuống, thư bay tiếp lên */
-.gate{transition:opacity .9s var(--ease),visibility .9s,transform .9s var(--ease)}
-.gate.hide{transform:scale(1.08)}
+/* giai đoạn phông mờ: chỉ mờ phông (opacity), zoom phần ruột (.gate-inner) — không biến hình cả lớp
+   nền có vân giấy (filter) để khỏi giật trên điện thoại */
+.gate{transition:opacity .9s var(--ease),visibility .9s;will-change:opacity}
+.gate-inner{transition:transform .9s var(--ease);will-change:transform}
+.gate.hide .gate-inner{transform:scale(1.1)}
 .gate.hide .env{transform:translateY(90px) scale(.9);transition:transform .9s var(--ease)}
 .gate.hide .env-letter{transform:translateY(-130%) scale(1.5) rotate(0);opacity:0;transition:transform .9s var(--ease),opacity .7s .1s}
-/* thiệp bên dưới trồi lên lúc phông tan */
-.card.enter{animation:card-in 1.15s var(--ease) both}
-@keyframes card-in{from{opacity:0;transform:translateY(34px) scale(.985)}to{opacity:1;transform:none}}
-/* mưa tim chúc mừng */
+.env-letter,.env-flap,.env-seal{will-change:transform}
+/* thiệp bên dưới hiện dần: chỉ opacity, không dịch chuyển cả tấm thiệp (nặng, gây giật) */
+.card.enter{animation:card-in .7s var(--ease) both}
+@keyframes card-in{from{opacity:0}to{opacity:1}}
+/* mưa tim chúc mừng — không dùng filter/bóng đổ để nhẹ máy */
 .confetti{position:fixed;inset:0;pointer-events:none;z-index:45;overflow:hidden}
-.confetti i{position:absolute;top:-6vh;color:var(--rose);animation:confetti-fall 3s cubic-bezier(.3,.2,.6,1) both}
+.confetti i{position:absolute;top:-6vh;color:var(--rose);animation:confetti-fall 3s cubic-bezier(.3,.2,.6,1) both;will-change:transform,opacity}
 .confetti i.c1{color:var(--wine)}
 .confetti i.c2{color:var(--blush)}
-.confetti i svg{width:100%;height:100%;fill:currentColor;display:block;filter:drop-shadow(0 6px 10px rgba(60,20,20,.25))}
+.confetti i svg{width:100%;height:100%;fill:currentColor;display:block}
 @keyframes confetti-fall{
   0%{transform:translateY(0) translateX(0) rotate(var(--rot)) scale(.6);opacity:0}
   10%{opacity:1}
@@ -648,8 +657,9 @@ body.locked{overflow:hidden}
 
   /* ── album: ba cột, ảnh ngang chiếm hai ô, hiện hết ───── */
   .album{--pad:10px;grid-template-columns:repeat(3,1fr);gap:26px 22px;padding:10px 8px;grid-auto-flow:dense}
-  .album figure,.album figure:nth-child(3n+1){aspect-ratio:3/4}
-  .album figure.wide{grid-column:span 2;aspect-ratio:3/2}
+  .album .pic,.album figure:nth-child(3n+1) .pic{aspect-ratio:3/4}
+  .album figure.wide{grid-column:span 2}
+  .album figure.wide .pic{aspect-ratio:3/2}
   .album figure[data-more]{display:block}
   #moreBtn{display:none}
 
