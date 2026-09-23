@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 /* Nhạc nền.
-   - Thử tự phát ngay khi tải trang (trình duyệt cho phép nếu khách đã hay nghe media ở trang này).
-   - Bị chặn thì phát ở cử chỉ đầu tiên: chạm mở phong bì, hoặc bất kỳ chạm/phím nào.
-   - File không tải được (chưa bỏ vào public/assets) → missing=true, nút nhạc tự ẩn. */
+   - CHỈ bắt đầu phát khi khách chạm mở phong bì (play()), không tự phát lúc tải trang.
+   - File không tải được (chưa bỏ vào public/assets) → missing=true, nút nhạc tự ẩn.
+   - Nút nhạc góc màn hình để tắt/mở. */
 export function useMusic(src) {
   const audioRef = useRef(null);
   const [playing, setPlaying] = useState(false);
@@ -32,7 +32,7 @@ export function useMusic(src) {
     }
   }, [src]);
 
-  /* gọi khi khách chạm mở phong bì */
+  /* gọi đúng lúc khách chạm mở phong bì — cử chỉ người dùng nên trình duyệt cho phép */
   const play = useCallback(async () => {
     if (!(await tryPlay()) && enabled) showHint();
   }, [tryPlay, enabled, showHint]);
@@ -48,49 +48,25 @@ export function useMusic(src) {
     }
   }, [tryPlay]);
 
-  /* tự phát lúc tải + dự phòng ở cử chỉ đầu tiên */
   useEffect(() => {
-    if (!src) return;
     const a = audioRef.current;
-    if (!a) return;
-    let done = false;
-    const onFirst = async () => {
-      if (done || a.error) return;
-      if (await tryPlay()) {
-        done = true;
-        off();
-      }
-    };
-    const off = () => {
-      window.removeEventListener("pointerdown", onFirst, true);
-      window.removeEventListener("keydown", onFirst, true);
-    };
+    if (!src || !a) return;
     const onErr = () => {
       setMissing(true);
       setPlaying(false);
-      off();
     };
     const onPause = () => setPlaying(false);
     const onPlay = () => setPlaying(true);
     a.addEventListener("error", onErr);
     a.addEventListener("pause", onPause);
     a.addEventListener("play", onPlay);
-    window.addEventListener("pointerdown", onFirst, true);
-    window.addEventListener("keydown", onFirst, true);
-    tryPlay().then((ok) => {
-      if (ok) {
-        done = true;
-        off();
-      }
-    });
     return () => {
-      off();
       a.removeEventListener("error", onErr);
       a.removeEventListener("pause", onPause);
       a.removeEventListener("play", onPlay);
       clearTimeout(hintTimer.current);
     };
-  }, [src, tryPlay]);
+  }, [src]);
 
   return { audioRef, src, enabled, missing, playing, hint, play, toggle };
 }

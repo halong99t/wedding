@@ -62,16 +62,29 @@ phồng lên rồi bung thành tim, nắp lật 3D, thư bay lên phóng to, ph�
 thiệp trồi lên kèm mưa tim vài giây. Với `prefers-reduced-motion` mọi hiệu ứng rút về gần tức thì.
 Thời gian các bước nằm trong `Gate.jsx` (t1, t2) và khối "chuỗi mở thiệp" trong `styles.css`.
 
-## Nhận Xác nhận tham dự và Lưu bút vào Google Sheets
+## Lưu bút và Xác nhận tham dự lưu ở đâu
 
-Bảng tính đã tạo sẵn trên Drive:
-https://docs.google.com/spreadsheets/d/1wxyENxwdc62tkzUWzdBsDOQdPPenCICLSWiW3233gPw/edit
+Lưu ngay trên Netlify (Functions + Blobs), file `netlify/functions/guestbook.mjs`. Lời chúc mọi khách
+đều thấy chung. Xác nhận tham dự chỉ xem được bằng khoá `ADMIN_KEY` (biến môi trường trên Netlify,
+bản sao trong `.env.admin.local` không đưa lên git):
 
-Để trống `rsvpEndpoint` / `wishEndpoint` thì phản hồi chỉ lưu trên máy người xem (có dòng ghi chú
-"Bản xem thử"). Muốn nhận về bảng tính trên, làm theo hướng dẫn ở đầu file `rsvp-apps-script.js`
-(mở bảng tính → Extensions → Apps Script → dán code → Deploy dạng Web app, quyền "Anyone" →
-copy URL `/exec` dán vào cả hai trường trong `src/config.js`). Script tự tạo hai sheet
-"Xác nhận tham dự" và "Lưu bút" với dòng tiêu đề khi có dữ liệu đầu tiên.
+- Xem xác nhận: `https://hanaphaiha.thiepcuoi.love/api/guestbook?type=rsvp&key=KHOÁ`
+- Tải Excel (CSV): thêm `&format=csv` vào hai link trên; lời chúc: `?type=wish&format=csv`
+- Xoá một lời chúc: gửi `DELETE /api/guestbook?type=wish&key=KHOÁ&at=<giá trị at của mục>`
+
+Chạy thử tại máy có API: `npx netlify-cli@17 dev` (thay cho `npm run dev`). Chạy `npm run dev` thường
+thì không có API, form rơi về chế độ lưu trên máy và hiện dòng "Bản xem thử".
+
+Tuỳ chọn Google Sheets: bảng tính đã tạo sẵn tại
+https://docs.google.com/spreadsheets/d/1wxyENxwdc62tkzUWzdBsDOQdPPenCICLSWiW3233gPw/edit .
+Làm theo hướng dẫn đầu file `rsvp-apps-script.js` để có URL `/exec`, rồi đặt biến môi trường
+`SHEETS_URL` trên Netlify (`npx netlify-cli@17 env:set SHEETS_URL <url>`). Từ đó mỗi phản hồi
+được ghi thêm vào Sheets song song với Netlify.
+
+## Huy hiệu "Powered by Netlify"
+
+Gói Free bật huy hiệu này mặc định cho site mới. Đã tắt qua API (`built_with_badge_enabled=false`);
+nếu thấy lại thì vào Netlify → Project configuration → General → Powered by Netlify badge → Off.
 
 ## Nhạc nền
 

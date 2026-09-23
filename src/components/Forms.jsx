@@ -1,7 +1,23 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import CONFIG from "../config.js";
-import { store, submitTo } from "../lib/store.js";
+import { store } from "../lib/store.js";
 import { SectionHead } from "./common.jsx";
+
+/* Gọi API lưu chung trên Netlify (netlify/functions/guestbook.mjs).
+   Trả về JSON; ném lỗi nếu API không có (vd. chạy `npm run dev` không qua netlify dev). */
+async function api(method, payload, query = "") {
+  if (!CONFIG.api) throw new Error("no api");
+  const res = await fetch(CONFIG.api + query, {
+    method,
+    headers: method === "POST" ? { "content-type": "application/json" } : undefined,
+    body: method === "POST" ? JSON.stringify(payload) : undefined,
+  });
+  const ct = res.headers.get("content-type") || "";
+  if (!ct.includes("application/json")) throw new Error("api unavailable");
+  const data = await res.json();
+  if (!res.ok || !data.ok) throw new Error(data.error || res.statusText);
+  return data;
+}
 
 /* 7. Xác nhận tham dự */
 export function Rsvp() {
@@ -10,6 +26,7 @@ export function Rsvp() {
   const [count, setCount] = useState("");
   const [msg, setMsg] = useState({ cls: "formmsg", text: "" });
   const [busy, setBusy] = useState(false);
+  const [local, setLocal] = useState(!CONFIG.api); // true = chỉ lưu trên máy
   const nameRef = useRef(null);
 
   async function onSubmit(e) {
@@ -25,31 +42,35 @@ export function Rsvp() {
       fullName: n,
       willCome: come === "yes" ? "Có" : "Không",
       numberOfPeople: count || "",
-      at: new Date().toISOString(),
       page: window.location.href,
     };
     setBusy(true);
     setMsg({ cls: "formmsg", text: "Đang gửi…" });
     try {
-      const r = await submitTo(CONFIG.rsvpEndpoint, payload);
-      if (r.local) {
-        const list = store.get("thiep-rsvp") || [];
-        list.push(payload);
-        store.set("thiep-rsvp", list);
-      }
-      setMsg({
-        cls: "formmsg ok",
-        text:
-          payload.willCome === "Có"
-            ? "Cảm ơn " + n + "! Hẹn gặp bạn ở tiệc cưới ♥"
-            : "Cảm ơn " + n + " đã báo lại. Hẹn bạn dịp khác nhé ♥",
-      });
-      setName("");
-      setCount("");
-      setCome("yes");
+      await api("POST", payload);
     } catch (err) {
-      setMsg({ cls: "formmsg err", text: "Gửi chưa được, bạn thử lại sau ít phút nhé." });
+      /* API không có (chạy thử máy) → lưu tại máy; API có mà lỗi → báo lỗi */
+      if (err.message === "no api" || err.message === "api unavailable") {
+        const list = store.get("thiep-rsvp") || [];
+        list.push({ ...payload, at: new Date().toISOString() });
+        store.set("thiep-rsvp", list);
+        setLocal(true);
+      } else {
+        setMsg({ cls: "formmsg err", text: "Gửi chưa được, bạn thử lại sau ít phút nhé." });
+        setBusy(false);
+        return;
+      }
     }
+    setMsg({
+      cls: "formmsg ok",
+      text:
+        payload.willCome === "Có"
+          ? "Cảm ơn " + n + "! Hẹn gặp bạn ở tiệc cưới ♥"
+          : "Cảm ơn " + n + " đã báo lại. Hẹn bạn dịp khác nhé ♥",
+    });
+    setName("");
+    setCount("");
+    setCome("yes");
     setBusy(false);
   }
 
@@ -110,7 +131,7 @@ export function Rsvp() {
         <p className={msg.cls} role="status" aria-live="polite">
           {msg.text}
         </p>
-        {!CONFIG.rsvpEndpoint && (
+        {local && (
           <p className="note">
             <i>Bản xem thử — phản hồi chỉ lưu trên máy này.</i>
           </p>
@@ -120,7 +141,8 @@ export function Rsvp() {
   );
 }
 
-function readWishes() {
+/* Danh sách dự phòng khi không có API: lời chúc lưu tại máy + lời chúc mẫu trong config */
+function localWishes() {
   const local = store.get("thiep-wishes") || [];
   return local.slice().reverse().concat(CONFIG.wishes || []);
 }
@@ -131,9 +153,29 @@ export function Wishes() {
   const [text, setText] = useState("");
   const [msg, setMsg] = useState({ cls: "formmsg", text: "" });
   const [busy, setBusy] = useState(false);
-  const [all, setAll] = useState(readWishes);
+  const [all, setAll] = useState(() => (CONFIG.api ? CONFIG.wishes || [] : localWishes()));
+  const [online, setOnline] = useState(!!CONFIG.api);
   const nameRef = useRef(null);
   const msgRef = useRef(null);
+
+  /* tải danh sách chung từ server */
+  useEffect(() => {
+    if (!CONFIG.api) return;
+    let dead = false;
+    api("GET", null, "?type=wish")
+      .then((d) => {
+        if (!dead) setAll(d.items.concat(CONFIG.wishes || []));
+      })
+      .catch(() => {
+        if (!dead) {
+          setOnline(false);
+          setAll(localWishes());
+        }
+      });
+    return () => {
+      dead = true;
+    };
+  }, []);
 
   async function onSubmit(e) {
     e.preventDefault();
@@ -143,15 +185,20 @@ export function Wishes() {
       (n ? msgRef : nameRef).current?.focus();
       return;
     }
-    const payload = { type: "wish", name: n, text: t, at: new Date().toISOString() };
+    const payload = { type: "wish", name: n, text: t };
     setBusy(true);
     setMsg({ cls: "formmsg", text: "Đang gửi…" });
     try {
-      await submitTo(CONFIG.wishEndpoint, payload);
-      const list = store.get("thiep-wishes") || [];
-      list.push(payload);
-      store.set("thiep-wishes", list);
-      setAll(readWishes());
+      if (online) {
+        const d = await api("POST", payload);
+        setAll((cur) => [d.item, ...cur]);
+      } else {
+        const item = { ...payload, at: new Date().toISOString() };
+        const list = store.get("thiep-wishes") || [];
+        list.push(item);
+        store.set("thiep-wishes", list);
+        setAll(localWishes());
+      }
       setName("");
       setText("");
       setMsg({ cls: "formmsg ok", text: "Đã nhận lời chúc của " + n + " ♥" });

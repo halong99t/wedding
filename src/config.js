@@ -35,9 +35,9 @@ const CONFIG = {
   ],
 
   rsvpDeadline: "25.09.2026",
-  /* URL Google Apps Script /exec. Để trống = lưu trên máy. */
-  rsvpEndpoint: "",
-  wishEndpoint: "",
+  /* API lưu chung trên Netlify (netlify/functions/guestbook.mjs): lời chúc mọi khách đều thấy,
+     xác nhận tham dự xem/tải CSV bằng ADMIN_KEY. Để "" = chỉ lưu trên máy người xem (bản xem thử). */
+  api: "/api/guestbook",
 
   /* Lời chúc có sẵn để mục Lưu bút không trống lúc mới phát thiệp */
   wishes: [{ name: "Gia đình hai bên", text: "Chúc hai con trăm năm hạnh phúc, sớm có tin vui ♥" }],
