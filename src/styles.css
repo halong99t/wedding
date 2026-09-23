@@ -411,8 +411,10 @@ section + section,.pair > section:first-child,.pair + section{padding-top:0}
 /* khoá cuộn trang phía sau khi ảnh đang phóng to */
 body.lb-open{overflow:hidden;touch-action:none}
 html:has(dialog.lightbox[open]){overflow:hidden}
-.lightbox[open]{animation:lb-in .45s var(--ease)}
+/* animation đặt lên ảnh, KHÔNG lên dialog: dialog có transform sẽ kéo nút đóng (position:fixed) trôi theo */
+.lightbox[open] img{animation:lb-in .45s var(--ease)}
 .lightbox[open]::backdrop{animation:lb-bg .45s var(--ease)}
+.lightbox[open] .close{animation:lb-bg .45s var(--ease)}
 @keyframes lb-in{from{opacity:0;transform:scale(.88) translateY(14px)}}
 @keyframes lb-bg{from{opacity:0}}
 .lightbox img{max-width:min(96vw,900px);max-height:88vh;object-fit:contain;border-radius:4px;margin:auto}
@@ -744,7 +746,7 @@ body.locked{overflow:hidden}
   .album .pic img{transition:none}
   .js .album.rv figure,.js .album.rv.in figure{opacity:1;transform:rotate(var(--tilt));animation:none}
   .album .fh{display:none}
-  .lightbox[open],.lightbox[open]::backdrop{animation:none}
+  .lightbox[open] img,.lightbox[open] .close,.lightbox[open]::backdrop{animation:none}
   .gate .tap,.env-seal::after,.env,.env.open .env-seal,.card.enter{animation:none}
   .burst,.confetti{display:none}
   .env.open .env-seal{transform:scale(0);opacity:0}
