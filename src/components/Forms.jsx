@@ -155,6 +155,8 @@ export function Wishes() {
   const [busy, setBusy] = useState(false);
   const [all, setAll] = useState(() => (CONFIG.api ? CONFIG.wishes || [] : localWishes()));
   const [online, setOnline] = useState(!!CONFIG.api);
+  const STEP = 5; // số lời chúc hiện ban đầu và mỗi lần "Xem thêm"
+  const [visible, setVisible] = useState(STEP);
   const nameRef = useRef(null);
   const msgRef = useRef(null);
 
@@ -253,7 +255,7 @@ export function Wishes() {
           : "Hãy là người đầu tiên gửi lời chúc đến hai vợ chồng ♥"}
       </p>
       <div className="wishes">
-        {all.map((w, i) => (
+        {all.slice(0, visible).map((w, i) => (
           <div className="wish" key={(w.at || "") + i}>
             <span className="av" aria-hidden="true">
               {String(w.name).trim().charAt(0).toUpperCase() || "♥"}
@@ -266,6 +268,16 @@ export function Wishes() {
           </div>
         ))}
       </div>
+      {all.length > visible && (
+        <button className="btn-text" type="button" onClick={() => setVisible((v) => v + STEP)}>
+          Xem thêm lời chúc ({all.length - visible})
+        </button>
+      )}
+      {all.length > STEP && visible >= all.length && (
+        <button className="btn-text" type="button" onClick={() => setVisible(STEP)}>
+          Thu gọn
+        </button>
+      )}
     </section>
   );
 }

@@ -33,7 +33,12 @@ function Person({ who, label, side }) {
     <div className={"person rv " + side}>
       {who.photo && (
         <div className="avatar">
-          <img src={who.photo} alt={who.name} />
+          {/* --fx/--fy: tâm khuôn mặt trong ảnh, CSS dịch và phóng để mặt nằm giữa vòng tròn */}
+          <img
+            src={who.photo}
+            alt={who.name}
+            style={{ "--fx": who.face ? who.face[0] : 0.5, "--fy": who.face ? who.face[1] : 0.25 }}
+          />
         </div>
       )}
       <p className="eyebrow">{label}</p>

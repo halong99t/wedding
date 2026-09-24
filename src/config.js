@@ -4,8 +4,9 @@
    Để trống = hiện khung mẫu.
    ══════════════════════════════════════════════════════════════ */
 const CONFIG = {
-  groom: { name: "Phái Hà", photo: "assets/mystu50.jpg", parents: "Ông Phạm Quốc Hiếu\nBà Phạm Thị Kiệm" },
-  bride: { name: "Thu Hà", photo: "assets/mystu92.jpg", parents: "Ông Vũ Hữu Lý\nBà Đinh Thị Lương" },
+  /* face: vị trí tâm khuôn mặt trong ảnh (x, y theo tỉ lệ 0–1) để ảnh tròn phóng đúng vào mặt */
+  groom: { name: "Phái Hà", photo: "assets/mystu50.jpg", face: [0.5, 0.23], parents: "Ông Phạm Quốc Hiếu\nBà Phạm Thị Kiệm" },
+  bride: { name: "Thu Hà", photo: "assets/mystu92.jpg", face: [0.56, 0.3], parents: "Ông Vũ Hữu Lý\nBà Đinh Thị Lương" },
 
   heroPhoto: "assets/mystu15.jpg", // ảnh to đầu trang, tỉ lệ 4:5
 
