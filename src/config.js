@@ -7,7 +7,7 @@ const CONFIG = {
   groom: { name: "Phái Hà", photo: "assets/mystu50.jpg", parents: "Ông Phạm Quốc Hiếu\nBà Phạm Thị Kiệm" },
   bride: { name: "Thu Hà", photo: "assets/mystu92.jpg", parents: "Ông Vũ Hữu Lý\nBà Đinh Thị Lương" },
 
-  heroPhoto: "assets/mystu106.jpg", // ảnh to đầu trang, tỉ lệ 4:5
+  heroPhoto: "assets/mystu15.jpg", // ảnh to đầu trang, tỉ lệ 4:5
 
   /* Ngày giờ hôn lễ (khối "Hôn lễ được cử hành vào lúc") và tiệc cưới.
      ISO kèm +07:00. Âm lịch tự tính. */
@@ -44,7 +44,7 @@ const CONFIG = {
 
   gallery: [
     { src: "assets/mystu101.jpg", cap: "Váy cưới" },
-    { src: "assets/mystu15.jpg", cap: "Áo dài đỏ" },
+    { src: "assets/mystu106.jpg", cap: "Váy cưới" },
     { src: "assets/mystu126.jpg", cap: "Cô dâu" },
     { src: "assets/mystu25.jpg", cap: "Áo dài đỏ", wide: true },
     { src: "assets/mystu65.jpg", cap: "Studio" },
@@ -56,8 +56,8 @@ const CONFIG = {
   galleryVisible: 99, // hiện hết ảnh, không có nút "Xem thêm ảnh" (đặt 6 để bật lại nút trên điện thoại)
 
   gifts: [
-    { role: "Mừng chú rể", holder: "PHAM PHAI HA", bank: "Vietcombank", number: "0000000000", qr: "" },
-    { role: "Mừng cô dâu", holder: "VU THU HA", bank: "Techcombank", number: "0000000000", qr: "" },
+    { role: "Mừng chú rể", holder: "PHAM PHAI HA", bank: "VIB", number: "006599572", qr: "assets/qr-nam.jpg" },
+    { role: "Mừng cô dâu", holder: "VU THI THU HA", bank: "VietinBank", number: "103873646304", qr: "assets/qr-nu.jpg" },
   ],
 
   /* Nhạc nền: bỏ file vào public/assets/nhac.mp3. Tự phát khi tải trang nếu trình duyệt cho phép,
